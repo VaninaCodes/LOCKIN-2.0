@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LOCK IN</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/login-registro.css" />
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/assets/img/logo.ico"
+    />
+  </head>
+  <body>
+    <!-- LOGIN -->
+    <div class="login-layout">
+      <!-- Contenido principal -->
+      <header>
+        <h2 id="saludo-registro">Bienvenid@!</h2>
+        <p id="mensaje-registro">Acá podes crear tu cuenta ❤︎</p>
+      </header>
+      <div class="login-content">
+        <form id="registro">
+          <label for="username">Nombre de usuario</label>
+          <input type="text" id="username" placeholder="ejemplo123" />
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="ejemplo123@gmail.com" />
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" placeholder="***" />
+          <button>Registrarse</button>
+        </form>
+        <p>Ya tenes una cuenta? <a href="login.html">Inicia sesión acá</a></p>
+      </div>
+    </div>
+    <div id="modalOverlay" class="modal-overlay">
+      <div class="modal-box">
+        <h3 id="modalTitle" class="modal-title">Aviso</h3>
+        <p id="modalMessage" class="modal-message"></p>
+        <div class="modal-actions">
+          <button id="modalCloseBtn" class="modal-btn modal-btn-secondary">
+            Cerrar
+          </button>
+          <button id="modalAcceptBtn" class="modal-btn modal-btn-primary">
+            Aceptar
+          </button>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+    <script src="assets/js/auth.js"></script>
+  </body>
+</html>

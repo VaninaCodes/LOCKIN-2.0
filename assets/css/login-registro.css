@@ -1,0 +1,73 @@
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: modalPop 0.15s ease-out;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-title {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+  color: #222;
+}
+
+.modal-message {
+  margin: 0 0 20px;
+  color: #444;
+  white-space: pre-line;
+  line-height: 1.4;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.modal-btn-primary {
+  background: #4f46e5;
+  color: #fff;
+}
+
+.modal-btn-primary:hover {
+  background: #4338ca;
+}
+
+.modal-btn-secondary {
+  background: #eee;
+  color: #333;
+}
+
+.modal-btn-secondary:hover {
+  background: #ddd;
+}

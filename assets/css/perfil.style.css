@@ -1,0 +1,176 @@
+/* ===== TARJETA DE PERFIL ===== */
+
+#perfil {
+  grid-column: 1 / -1;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-around !important;
+  gap: 40px !important;
+  text-align: left !important;
+  padding: 48px 60px !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+#foto {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+#fotoWrapper {
+  position: relative !important;
+  width: 200px !important;
+  height: 200px !important;
+}
+
+#foto img {
+  width: 200px !important;
+  height: 200px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* Icono circular de lápiz sobre la foto */
+#botonCambiarFoto {
+  position: absolute !important;
+  bottom: 6px !important;
+  right: 6px !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background-color: var(--accent-color) !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.9rem !important;
+  cursor: pointer !important;
+  border: 2px solid white !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+  margin: 0 !important;
+}
+
+#botonCambiarFoto:hover {
+  filter: brightness(1.1) !important;
+}
+
+.tooltip-foto {
+  position: absolute !important;
+  bottom: -30px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background-color: var(--taupe-grey) !important;
+  color: white !important;
+  font-size: 0.75rem !important;
+  font-weight: normal !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  white-space: nowrap !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.15s ease !important;
+}
+
+#botonCambiarFoto:hover .tooltip-foto {
+  opacity: 1 !important;
+}
+
+.desc {
+  flex: 0 0 320px !important;
+  min-width: 0 !important;
+}
+
+/* ===== MODO VER ===== */
+
+#verNombre {
+  color: var(--text-base) !important;
+  margin-bottom: 4px !important;
+  font-size: 1.8rem !important;
+}
+
+#verUsername {
+  color: var(--cool-steel) !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 8px !important;
+}
+
+#verBio {
+  color: var(--cool-steel) !important;
+  margin-bottom: 16px !important;
+}
+
+#botonEditar {
+  width: 100% !important;
+  background: transparent !important;
+  color: var(--text-base) !important;
+  border: 1.5px solid var(--text-base) !important;
+  border-radius: 10px !important;
+  padding: 8px 24px !important;
+  transition: all 0.2s ease !important;
+}
+
+#botonEditar:hover {
+  background: var(--accent-color) !important;
+  color: white !important;
+  border-color: var(--accent-color) !important;
+}
+
+/* ===== MODO EDITAR ===== */
+
+#editarPerfil[hidden] {
+  display: none !important;
+}
+
+#editarPerfil {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  text-align: left !important;
+}
+
+#editarPerfil label {
+  color: var(--cool-steel) !important;
+  font-size: .9rem !important;
+  margin-top: 12px !important;
+  margin-bottom: 4px !important;
+}
+
+#editarPerfil input,
+#editarPerfil textarea {
+  border: 1px solid var(--pale-slate) !important;
+  border-radius: 10px !important;
+  padding: 8px 12px !important;
+  font-family: inherit !important;
+  background-color: white !important;
+  color: var(--taupe-grey) !important;
+}
+
+#botonesEdicion {
+  margin-top: 16px !important;
+  display: flex !important;
+  gap: 8px !important;
+  justify-content: flex-start !important;
+}
+
+#botonCancelar {
+  background-color: var(--cool-steel) !important;
+}
+
+/* Adaptación Mobile */
+@media (max-width: 600px) {
+  #perfil {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 20px !important;
+    padding: 24px 16px !important;
+  }
+
+  #botonesEdicion {
+    justify-content: center !important;
+  }
+}
