@@ -13,7 +13,8 @@
 }
 
 .modal-box {
-  background: #fff;
+  background: rgba(var(--card-bg-rgb), var(--panel-opacity));
+  color: var(--text-base);
   border-radius: 12px;
   padding: 24px 28px;
   max-width: 360px;
@@ -30,12 +31,12 @@
 .modal-title {
   margin: 0 0 10px;
   font-size: 1.1rem;
-  color: #222;
+  color: var(--text-base);
 }
 
 .modal-message {
   margin: 0 0 20px;
-  color: #444;
+  color: var(--text-base);
   white-space: pre-line;
   line-height: 1.4;
 }
@@ -55,19 +56,24 @@
 }
 
 .modal-btn-primary {
-  background: #4f46e5;
+  background: var(--accent-color);
   color: #fff;
 }
 
 .modal-btn-primary:hover {
-  background: #4338ca;
+  background: var(--accent-dark);
 }
 
 .modal-btn-secondary {
-  background: #eee;
-  color: #333;
+  background: rgba(128, 128, 128, 0.2);
+  color: var(--text-base);
 }
 
 .modal-btn-secondary:hover {
-  background: #ddd;
+  background: rgba(128, 128, 128, 0.3);
+}
+
+[data-modo="oscuro"] .modal-box {
+  background: #2a2e31;
+  color: var(--text-base);
 }

@@ -2,6 +2,26 @@
 // ELEMENTOS DEL HTML
 // ======================================================
 
+const sidebar = document.getElementById("sidebar");
+const sidebarToggle = document.getElementById("sidebarToggle");
+const sidebarClose = document.getElementById("sidebarClose");
+
+function cerrarSidebar() {
+    sidebar.classList.remove("open");
+    sidebarToggle.setAttribute("aria-expanded", "false");
+}
+
+sidebarToggle.addEventListener("click", () => {
+    const estaAbierto = sidebar.classList.toggle("open");
+    sidebarToggle.setAttribute("aria-expanded", String(estaAbierto));
+});
+
+sidebarClose.addEventListener("click", cerrarSidebar);
+
+document.querySelectorAll(".nav-item").forEach((link) => {
+    link.addEventListener("click", cerrarSidebar);
+});
+
 // foto
 const inputFoto = document.getElementById("inputFoto");
 const fotoPerfil = document.getElementById("fotoPerfil");

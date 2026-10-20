@@ -21,99 +21,11 @@
   --sidebar-width: 230px;
   --radius: 16px;
 }
-/* POMODORO*/
 
-/* Modo oscuro */
 [data-modo="oscuro"]{
   --bg-base: #222526;
   --card-bg-rgb: 42, 46, 49;
   --text-base: #E0E0E0;
-}
-
-.card-time {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 35px 25px;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Círculo del cronómetro */
-
-#tiempo {
-    width: min(100%, 450px);
-    height: auto;
-    min-height: 160px;
-    margin: 0 auto 25px;
-    font-size: 70px;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    border-radius: 0;
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-    color: var(--text-base);
-    font-size: 52px !important;
-    letter-spacing: 2px;
-}
-
-/* Botones */
-
-.btn-group-pomodoro {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 25px;
-}
-
-.btn-group-pomodoro button {
-    min-width: 110px;
-    padding: 10px 18px;
-    margin: 0;
-    border-radius: 12px;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.btn-group-pomodoro button:hover {
-    transform: translateY(-2px);
-}
-
-
-/* Configuración */
-
-#cards-sets {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: end;
-    gap: 20px;
-    margin-top: 10px;
-}
-
-#cards-sets label {
-    display: block;
-    color: var(--text-base);
-    margin-bottom: 6px;
-    text-align: left;
-}
-
-#cards-sets select {
-    width: 100%;
-    min-width: 250px;
-}
-
-
-/* Estado actual */
-
-#estadoPomodoro {
-    color: var(--old-rose);
-    font-size: 30px;
-    margin: 25px 0 0;
-    padding: 8px 20px;
 }
 *{
   box-sizing: border-box;
@@ -121,13 +33,23 @@
 
 body{
   position: relative;
+  overflow-x: clip;
   font-weight: 500;
   background-color: var(--bg-base);
   color: var(--text-base);
   margin: 0;
   min-height: 100vh;
-  font-family: 'Bagel Fat One', cursive;
+  font-family: 'Nunito', sans-serif;
   transition: background-color .2s ease, color .2s ease;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Righteous', cursive;
 }
 
 body::before{
@@ -144,6 +66,55 @@ body::before{
   transform: scale(1.08);
 }
 
+.auth-page{
+  background-color: #C8C8C8;
+  background-image:
+    linear-gradient(
+      135deg,
+      rgba(219, 130, 145, .38) 0%,
+      transparent 42%
+    ),
+    linear-gradient(
+      225deg,
+      rgba(59, 88, 125, .32) 0%,
+      transparent 48%
+    ),
+    linear-gradient(
+      45deg,
+      rgba(71, 98, 42, .28) 0%,
+      transparent 52%
+    ),
+    linear-gradient(
+      315deg,
+      rgba(104, 79, 54, .24) 0%,
+      transparent 46%
+    ),
+    linear-gradient(
+      160deg,
+      rgba(53, 58, 62, .12),
+      #E6E2E1 48%,
+      #DCE3EA
+    );
+  background-attachment: fixed;
+  background-size: 160% 160%;
+  animation: authGradientFlow 18s ease-in-out infinite alternate;
+}
+
+.auth-page::before{
+  content: none;
+}
+
+@keyframes authGradientFlow{
+  from{ background-position: 0% 0%; }
+  to{ background-position: 100% 100%; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .auth-page{
+    animation: none;
+  }
+}
+
 .app-layout{
     display: flex;
     min-height: 100vh;
@@ -151,7 +122,10 @@ body::before{
 
 /* Sidebar */
 .sidebar {
+    display: flex;
+    flex-direction: column;
     width: var(--sidebar-width);
+    min-height: 100vh;
     background-color: rgba(var(--accent-dark-rgb), var(--panel-opacity));
     color: var(--accent-tint);
     padding: 24px 16px;
@@ -168,13 +142,15 @@ body::before{
 }
 
 .sidebar-logo h1{
-    font-size: 30px;
+    font-size: 40px;
+    line-height: 1;
     margin: 0; 
 }
 
 .sidebar-nav{
     display: flex;
     flex-direction: column;
+    flex: 1;
     gap: 8px;
 }
 
@@ -187,6 +163,14 @@ body::before{
     color: var(--accent-tint);
     text-decoration: none;
     transition: background-color .2s ease;
+}
+
+.nav-item > i,
+.nav-personalizar > i{
+    width: 20px;
+    flex: 0 0 20px;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
 .nav-item:hover{
@@ -213,6 +197,15 @@ body::before{
     color: white;
 }
 
+.nav-item-exit{
+    margin-top: auto;
+}
+
+.nav-item-exit:hover{
+    background-color: #a83232;
+    color: #fff;
+}
+
 .sidebar-toggle{
     display: none;
     position: fixed;
@@ -230,6 +223,10 @@ body::before{
     justify-content: center;
 }
 
+.sidebar-close{
+    display: none;
+}
+
 .content{
     flex: 1;
     padding: 32px;
@@ -237,16 +234,20 @@ body::before{
 }
 #saludo{
     text-align: left;
-    font-size: 44px;
+    font-size: clamp(1.75rem, 3vw, 2.75rem);
+    margin: 0 0 4px;
 }
 #fecha-actual{
     text-align: left;
+    margin: 0;
 }
 .dashboard-header{
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 24px;
+    width: 100%;
+    margin-bottom: clamp(32px, 8vh, 80px);
 }
 .dashboard-greeting{
     min-width: 0;
@@ -282,9 +283,9 @@ body::before{
 }
 .cards-grid{
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr);
     gap: 20px;
-    margin-top: 24px;
+    align-items: start;
 }
 
 .card{
@@ -306,49 +307,127 @@ body::before{
 }
 
 .card-time{
-    grid-column: 1 / -1;
+    grid-column: 1;
+    grid-row: 1;
     text-align: center;
+    padding: clamp(22px, 4vw, 40px);
+    min-width: 0;
+}
+
+.dashboard-side{
+    grid-column: 2;
+    grid-row: 1;
+    display: grid;
+    align-content: start;
+    gap: 20px;
+    min-width: 0;
+}
+
+.dashboard-side .card{
+    min-width: 0;
+}
+
+#estadoPomodoro{
+    margin: 0 0 12px;
+    padding: 8px 16px;
+    color: var(--accent-color);
+    font-size: clamp(1.35rem, 3vw, 2rem);
+}
+
+#estadoPomodoro.is-break{
+    color: #287a42;
+    background-color: rgba(40, 122, 66, .12);
+    border-radius: 12px;
+}
+
+[data-modo="oscuro"] #estadoPomodoro.is-break{
+    color: #8bd3a1;
+}
+
+#estadoPomodoro.is-encouraging{
+    animation: animarAnimo 1.8s ease-in-out infinite;
+}
+
+@keyframes animarAnimo{
+    50%{ transform: scale(1.04); }
 }
 
 #tiempo{
-    font-size: 70px !important;
+    width: 100%;
+    margin: 0 auto 28px;
+    font-family: 'Righteous', cursive;
+    font-size: clamp(4rem, 8vw, 7rem) !important;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .02em;
+    line-height: 1.15;
     color: var(--text-base);
     background: transparent;
     border: 0;
     border-radius: 0;
     box-shadow: none;
+    transition: color .25s ease;
 }
 
-.card-time label{
-    display: block;
-    color: var(--text-base);
-    margin-top: 14px;
-    margin-bottom: 4px;
+#tiempo.is-break{
+    color: #287a42;
+}
+
+[data-modo="oscuro"] #tiempo.is-break{
+    color: #8bd3a1;
+}
+
+#tiempo.is-encouraging{
+    animation: animarAnimo 1.8s ease-in-out infinite;
+}
+
+.pomodoro-config{
+    width: min(100%, 760px);
+    margin: 16px auto 0;
+    padding: 12px 16px;
+    border: 1px solid var(--pale-slate);
+    border-radius: var(--radius);
     text-align: left;
 }
 
-.card-time select{
+.pomodoro-config summary{
+    color: var(--accent-color);
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.pomodoro-config-fields{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.pomodoro-field label{
+    display: block;
+    color: var(--text-base);
+    margin: 0 0 5px;
+}
+
+.pomodoro-field select{
     width: 100%;
-    max-width: 320px;
+    max-width: none;
+}
+
+.pomodoro-field .materia-hint{
+    margin-bottom: 0;
 }
 
 .btn-group-pomodoro{
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 8px;
+    margin: 0;
 }
-#cards-sets{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-#estadoPomodoro{
-    color: var(--accent-color);
-    font-size: 35px;
-    margin-bottom: 0;
-    padding: 10px;
+
+.btn-group-pomodoro button{
+    min-width: 120px;
+    margin: 0;
 }
 
 button{
@@ -402,7 +481,13 @@ input[type="text"], select{
 }
 
 #task-list{
-  max-height: 320px;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.materia-progress-list{
+  max-height: 150px;
   overflow-y: auto;
   scrollbar-gutter: stable;
 }
@@ -488,15 +573,25 @@ progress::-webkit-progress-value {
   margin: 4px 0 16px;
 }
 
-@media (max-width: 900px){
+@media (max-width: 1000px){
   .cards-grid{
     grid-template-columns: 1fr;
+  }
+
+  .card-time,
+  .dashboard-side{
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .dashboard-header{
+    margin-bottom: 32px;
   }
 }
 
 @media (max-width: 768px){
   .dashboard-header{
-    padding-left: 48px;
+    padding-left: 0;
   }
 
   .pomodoro-profile{
@@ -532,6 +627,26 @@ progress::-webkit-progress-value {
     box-shadow: 4px 0 20px rgba(0,0,0,.2);
   }
 
+  .sidebar-close{
+    position: absolute;
+    top: 14px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    margin: 0;
+    padding: 0;
+    border-radius: 10px;
+    color: var(--accent-tint);
+    background: rgba(255,255,255,.1);
+  }
+
+  .sidebar-logo{
+    padding-right: 40px;
+  }
+
   .sidebar.open{
     transform: translateX(0);
   }
@@ -544,21 +659,16 @@ progress::-webkit-progress-value {
     padding: 18px;
   }
 
-  .card-time h2#tiempo{
-    font-size: 2rem;
+  #tiempo{
+    font-size: clamp(3.5rem, 15vw, 5rem) !important;
   }
 
   .btn-group-pomodoro{
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .btn-group-pomodoro button{
-    width: 100%;
-    margin: 4px 0;
-  }
-
-  .card-time select{
-    max-width: none;
+    width: auto;
   }
 
   .task-input-row{
@@ -571,6 +681,13 @@ progress::-webkit-progress-value {
 
   #task-list > div{
     flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  #estadoPomodoro.is-encouraging,
+  #tiempo.is-encouraging{
+    animation: none;
   }
 }
 
@@ -645,32 +762,80 @@ progress::-webkit-progress-value {
 
 /* ===== REGISTRO ===== */
 #saludo-registro{
-    font-size: 44px;
-    color: var(--taupe-grey);
+    font-size: clamp(2rem, 6vw, 2.75rem);
+    color: var(--accent-color);
     text-align: center;
-    padding: 20px;
+    margin: 0 0 8px;
 }
 #mensaje-registro{
-    font-size: 20px;
-    color: var(--taupe-grey);
+    font-size: 1.1rem;
+    color: var(--text-base);
     text-align: center;
+    margin: 0;
 }
 .login-layout{
-  margin-top: 24px;
+  width: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 20px;
+  padding: 32px 16px;
 }
+
+.login-layout > header{
+  width: min(100%, 520px);
+}
+
 .login-content{
-  background-color: white;
+  width: min(100%, 420px);
+  min-width: 0;
+  background-color: rgba(var(--card-bg-rgb), var(--panel-opacity));
+  color: var(--text-base);
   border-radius: var(--radius);
-  padding: 24px;
-  box-shadow:0px 4px 20px rgba(96,77,83,0.12);
+  padding: clamp(22px, 5vw, 34px);
+  box-shadow: 0 12px 32px rgba(26, 26, 26, .12);
+  backdrop-filter: blur(2px);
 }
 #registro{
   display: flex;
   flex-direction: column;
+  gap: 8px;
+}
+
+#registro label{
+  margin-top: 8px;
+  color: var(--text-base);
+  font-weight: 700;
+}
+
+#registro input{
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid var(--pale-slate);
+  border-radius: 10px;
+  background: rgba(var(--card-bg-rgb), var(--panel-opacity));
+  color: var(--text-base);
+  font: inherit;
+}
+
+#registro button{
+  min-height: 44px;
+  margin: 18px 0 0;
+  font-weight: 800;
+}
+
+.login-content > p{
+  margin: 18px 0 0;
+  text-align: center;
+}
+
+.login-content a{
+  color: var(--accent-color);
+  font-weight: 800;
 }
 
 /* Modo oscuro inputs */

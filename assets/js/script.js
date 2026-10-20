@@ -245,6 +245,7 @@ let minutosDescanso = 5;
 
 let totalSets = 1;
 let setActual = 1;
+let objetivo = 25;
 
 let esDescanso = false;
 let segundosAcumulados = 0;
@@ -271,6 +272,12 @@ const cantidadSetsSelect =
 
 const materiaEstudioSelect =
     document.getElementById("materiaEstudio");
+
+const configuracionPomodoro =
+    document.getElementById("configuracionPomodoro");
+
+const estadoPomodoro =
+    document.getElementById("estadoPomodoro");
 
 const avisoMaterias =
     document.getElementById("avisoMaterias");
@@ -431,6 +438,48 @@ function detenerIntervalo() {
     intervaloPomodoro = null;
 }
 
+function actualizarMensajePomodoro(estado) {
+    const materia = materiasEstudio.find(
+        (item) => item.id === estado.subjectId,
+    );
+    const nombreMateria = materia?.name || "tu materia";
+    const enDescanso = estado.isBreak && !estado.completed;
+    const alentador =
+        !enDescanso &&
+        !estado.completed &&
+        estado.secondsRemaining <= 5 * 60;
+    let mensaje = "¡Vamos a estudiar!";
+
+    if (estado.completed) {
+        mensaje = "¡Sesión completada! ¡Buen trabajo!";
+    } else if (enDescanso) {
+        mensaje = estado.running
+            ? "¡Hora de descansar! Estirá y recargá energía."
+            : "Descanso en pausa";
+    } else if (iniciado) {
+        if (!estado.running) {
+            mensaje = `Estudiando: ${nombreMateria} (en pausa)`;
+        } else if (estado.secondsRemaining <= 10) {
+            mensaje = `¡Últimos segundos! ¡Vos podés, ${nombreMateria}!`;
+        } else if (estado.secondsRemaining <= 60) {
+            mensaje = `¡Un último esfuerzo! Estudiando: ${nombreMateria}`;
+        } else if (alentador) {
+            mensaje = `¡Ya falta poco! Estudiando: ${nombreMateria}`;
+        } else {
+            mensaje = `Estudiando: ${nombreMateria}`;
+        }
+    }
+
+    if (estadoPomodoro.textContent !== mensaje) {
+        estadoPomodoro.textContent = mensaje;
+    }
+    estadoPomodoro.classList.toggle("is-break", enDescanso);
+    estadoPomodoro.classList.toggle("is-encouraging", alentador);
+    tiempo.classList.toggle("is-break", enDescanso);
+    tiempo.classList.toggle("is-encouraging", alentador);
+    estadoPomodoro.setAttribute("aria-live", enDescanso ? "assertive" : "polite");
+}
+
 function aplicarEstadoPomodoro(estado) {
     if (!estado) return;
 
@@ -453,13 +502,14 @@ function aplicarEstadoPomodoro(estado) {
     materiaEstudioSelect.disabled = iniciado;
     tipoPomodoroSelect.disabled = iniciado;
     cantidadSetsSelect.disabled = iniciado;
-    document.getElementById("estadoPomodoro").textContent =
-        estado.completed ? "Sesión terminada" : esDescanso ? "Descanso" : "Estudio";
+    configuracionPomodoro.open = !iniciado;
+    actualizarMensajePomodoro(estado);
     document.getElementById("objetivoMinutos").textContent =
         minutosEstudio * totalSets;
     cronometro.textContent =
         `${String(Math.floor(segundosAcumulados / 60)).padStart(2, "0")}:` +
         `${String(segundosAcumulados % 60).padStart(2, "0")}`;
+    objetivo = minutosEstudio * totalSets;
     minutosActuales.textContent = Math.floor(segundosAcumulados / 60);
     pintarTiempo();
 
@@ -481,6 +531,10 @@ function actualizarPomodoro() {
 
     aplicarEstadoPomodoro(estado);
     actualizarProgresoMaterias();
+
+    if (estadoAnterior?.running && !estadoAnterior.isBreak && estado.isBreak) {
+        estadoPomodoro.setAttribute("aria-live", "assertive");
+    }
 
     if (estadoAnterior?.running && estado.completed) {
         detenerIntervalo();
@@ -533,6 +587,7 @@ iniciarBtn.addEventListener("click", () => {
 
     const estado = window.LockInStudyData.resumePomodoro();
     aplicarEstadoPomodoro(estado);
+    configuracionPomodoro.open = false;
 
     mostrarBotonesEnEjecucion();
 
@@ -577,10 +632,11 @@ reiniciarBtn.addEventListener("click", () => {
     iniciado = false;
     materiaSesionId = null;
 
-    document.getElementById(
-        "estadoPomodoro"
-    ).textContent =
-        "Estudio";
+    estadoPomodoro.textContent = "¡Vamos a estudiar!";
+    estadoPomodoro.classList.remove("is-break", "is-encouraging");
+    estadoPomodoro.setAttribute("aria-live", "polite");
+    tiempo.classList.remove("is-break", "is-encouraging");
+    configuracionPomodoro.open = true;
 
     leerSeleccionModo();
 
@@ -588,9 +644,13 @@ reiniciarBtn.addEventListener("click", () => {
         minutosEstudio * 60;
 
     pintarTiempo();
+    objetivo = minutosEstudio * totalSets;
+    document.getElementById("objetivoMinutos").textContent = objetivo;
 
     cronometro.textContent = "00:00";
     minutosActuales.textContent = "0";
+    objetivo = minutosEstudio * totalSets;
+    document.getElementById("objetivoMinutos").textContent = objetivo;
 
     materiaEstudioSelect.disabled = false;
     tipoPomodoroSelect.disabled = false;
@@ -652,12 +712,6 @@ if (estadoGuardado) {
 // ========================================
 // PROGRESO
 // ========================================
-
-let objetivo = 60;
-
-document
-.getElementById("objetivoMinutos")
-.textContent = objetivo;
 
 const barraProgreso =
     document.getElementById(
@@ -721,15 +775,26 @@ const sidebar =
 const sidebarToggle =
     document.getElementById("sidebarToggle");
 
-if (sidebarToggle) {
+const sidebarClose =
+    document.getElementById("sidebarClose");
+
+function cerrarSidebar() {
+    sidebar.classList.remove("open");
+    sidebarToggle?.setAttribute("aria-expanded", "false");
+}
+
+if (sidebarToggle && sidebar) {
 
     sidebarToggle.addEventListener("click", () => {
-        sidebar.classList.toggle("open");
+        const estaAbierto = sidebar.classList.toggle("open");
+        sidebarToggle.setAttribute("aria-expanded", String(estaAbierto));
     });
+
+    sidebarClose?.addEventListener("click", cerrarSidebar);
 
     document.querySelectorAll(".nav-item").forEach(link => {
         link.addEventListener("click", () => {
-            sidebar.classList.remove("open");
+            cerrarSidebar();
         });
     });
 }

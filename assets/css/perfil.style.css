@@ -2,16 +2,24 @@
 
 #perfil {
   grid-column: 1 / -1;
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: space-around !important;
-  gap: 40px !important;
+  display: block !important;
   text-align: left !important;
   padding: 48px 60px !important;
   width: 100% !important;
   max-width: none !important;
   margin: 0 !important;
+}
+
+.profile-main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  gap: 40px;
+}
+
+#perfil .dashboard-header {
+  margin-bottom: 40px;
 }
 
 #foto {
@@ -231,10 +239,17 @@
 /* Adaptación Mobile */
 @media (max-width: 600px) {
   #perfil {
-    flex-direction: column !important;
     text-align: center !important;
-    gap: 20px !important;
     padding: 24px 16px !important;
+  }
+
+  .profile-main {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  #perfil .dashboard-header {
+    margin-bottom: 28px;
   }
 
   #botonesEdicion {

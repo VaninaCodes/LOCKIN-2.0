@@ -5,79 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LOCK IN</title>
 
-    <script>
-      (function () {
-        try {
-          const guardado = localStorage.getItem("lockin_personalizacion");
-          if (!guardado) return;
-
-          const config = JSON.parse(guardado);
-          const paletas = {
-            predeterminado: {
-              accent: "#353A3E",
-              accentDark: "#1A1A1A",
-              tint: "#E0E0E0",
-              bg: "#C8C8C8",
-              text: "#222526",
-            },
-            rosa: {
-              accent: "#DB8291",
-              accentDark: "#720002",
-              tint: "#F4D6DC",
-              bg: "#F4D6DC",
-              text: "#720002",
-            },
-            marron: {
-              accent: "#684F36",
-              accentDark: "#342519",
-              tint: "#EDE6D9",
-              bg: "#EDE6D9",
-              text: "#342519",
-            },
-            verde: {
-              accent: "#47622A",
-              accentDark: "#354220",
-              tint: "#DFE7D1",
-              bg: "#DFE7D1",
-              text: "#354220",
-            },
-            azul: {
-              accent: "#3B587D",
-              accentDark: "#16294A",
-              tint: "#F5F4F0",
-              bg: "#E8EFF8",
-              text: "#16294A",
-            },
-          };
-          const paleta = paletas[config.paletaId] || paletas.predeterminado;
-          const raiz = document.documentElement.style;
-          const modo = config.modo || "claro";
-          document.documentElement.setAttribute("data-modo", modo);
-
-          if (modo === "oscuro") {
-            raiz.removeProperty("--bg-base");
-            raiz.removeProperty("--text-base");
-          } else {
-            raiz.setProperty("--bg-base", config.colorFondo || paleta.bg);
-            raiz.setProperty("--text-base", paleta.text);
-          }
-
-          raiz.setProperty("--accent-color", paleta.accent);
-          raiz.setProperty("--accent-dark", paleta.accentDark);
-          raiz.setProperty("--accent-tint", paleta.tint);
-          raiz.setProperty("--panel-opacity", config.opacidad ?? 1);
-          raiz.setProperty("--bg-blur", (config.desenfoque || 0) + "px");
-          if (config.colorFondo) {
-            raiz.setProperty("--bg-color-custom", config.colorFondo);
-          }
-          if (config.fondo) {
-            raiz.setProperty("--bg-image", "url(" + config.fondo + ")");
-          }
-        } catch (error) {
-          console.warn("No se pudo aplicar la personalización guardada.", error);
-        }
-      })();
-    </script>
+    <script src="assets/js/theme.js"></script>
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
@@ -91,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Righteous&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/css/style.css" />
@@ -99,17 +27,36 @@
   </head>
   <body>
     <div class="app-layout">
-      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+      <button
+        class="sidebar-toggle"
+        id="sidebarToggle"
+        aria-label="Abrir menú"
+        aria-expanded="false"
+      >
         <i class="bi bi-list"></i>
       </button>
 
       <aside class="sidebar" id="sidebar">
+        <button
+          type="button"
+          class="sidebar-close"
+          id="sidebarClose"
+          aria-label="Cerrar menú"
+        >
+          <i class="bi bi-x-lg"></i>
+        </button>
         <div class="sidebar-logo">
           <h1>LOCK IN</h1>
         </div>
         <nav class="sidebar-nav">
-          <a href="perfil.html" class="nav-item">Perfil</a>
-          <a href="index.html" class="nav-item active">Estudio</a>
+          <a href="perfil.html" class="nav-item">
+            <i class="bi bi-person-circle" aria-hidden="true"></i>
+            <span>Perfil</span>
+          </a>
+          <a href="index.html" class="nav-item active">
+            <i class="bi bi-journal-bookmark-fill" aria-hidden="true"></i>
+            <span>Estudio</span>
+          </a>
           <button
             type="button"
             class="nav-personalizar"
@@ -117,101 +64,113 @@
           >
             <i class="bi bi-palette"></i> Personalizar
           </button>
-          <a href="login.html" class="nav-item">Salir</a>
+          <a href="login.html" class="nav-item nav-item-exit">
+            <i class="bi bi-box-arrow-left" aria-hidden="true"></i>
+            <span>Salir</span>
+          </a>
         </nav>
       </aside>
 
       <main class="content">
-        <header class="dashboard-header">
-          <div class="dashboard-greeting">
-            <h2 id="saludo">Buen día</h2>
-            <p id="fecha-actual"></p>
-          </div>
-          <img id="fotoSaludo" class="greeting-avatar" alt="Foto de perfil" hidden />
-        </header>
-
         <div class="cards-grid">
           <section id="pomodoro" class="card card-time">
+            <header class="dashboard-header">
+              <div class="dashboard-greeting">
+                <h2 id="saludo">Buen día</h2>
+                <p id="fecha-actual"></p>
+              </div>
+              <img id="fotoSaludo" class="greeting-avatar" alt="Foto de perfil" hidden />
+            </header>
+            <h3 id="estadoPomodoro" aria-live="polite">¡Vamos a estudiar!</h3>
             <h2 id="tiempo">00:25:00</h2>
-            <label for="materiaEstudio">Materia de estudio:</label>
-            <select id="materiaEstudio" required>
-              <option value="">Seleccioná una materia</option>
-            </select>
-            <p id="avisoMaterias" class="materia-hint"></p>
             <div class="btn-group-pomodoro">
               <button id="iniciar" disabled>Iniciar</button>
               <button id="pausar" style="display: none">Pausar</button>
               <button id="reiniciar" style="display: none">Reiniciar</button>
             </div>
-            <div id="cards-sets">
-              <label for="tipoPomodoro">Modo de estudio:</label>
-              <select id="tipoPomodoro">
-                <option value="25-5">25 min estudio / 5 min descanso</option>
-                <option value="50-10">50 min estudio / 10 min descanso</option>
-                <option value="90-20">90 min estudio / 20 min descanso</option>
-              </select>
-
-              <label for="cantidadSets">Cantidad de sets:</label>
-              <select id="cantidadSets">
-                <option value="1">1 set</option>
-                <option value="2">2 sets</option>
-                <option value="3">3 sets</option>
-                <option value="4">4 sets</option>
-              </select>
-            </div>
-            <h4 id="estadoPomodoro">Estudio</h4>
+            <details id="configuracionPomodoro" class="pomodoro-config" open>
+              <summary>Configurar sesión</summary>
+              <div class="pomodoro-config-fields">
+                <div class="pomodoro-field">
+                  <label for="materiaEstudio">Materia de estudio</label>
+                  <select id="materiaEstudio" required>
+                    <option value="">Seleccioná una materia</option>
+                  </select>
+                  <p id="avisoMaterias" class="materia-hint"></p>
+                </div>
+                <div class="pomodoro-field">
+                  <label for="tipoPomodoro">Modo de estudio</label>
+                  <select id="tipoPomodoro">
+                    <option value="25-5">25 min estudio / 5 min descanso</option>
+                    <option value="50-10">50 min estudio / 10 min descanso</option>
+                    <option value="90-20">90 min estudio / 20 min descanso</option>
+                  </select>
+                </div>
+                <div class="pomodoro-field">
+                  <label for="cantidadSets">Cantidad de sets</label>
+                  <select id="cantidadSets">
+                    <option value="1">1 set</option>
+                    <option value="2">2 sets</option>
+                    <option value="3">3 sets</option>
+                    <option value="4">4 sets</option>
+                  </select>
+                </div>
+              </div>
+            </details>
           </section>
 
-          <section id="tareas" class="card card-tasks">
-            <h3>Lista de Tareas</h3>
-            <div class="task-input-row">
-              <input
-                type="text"
-                id="task-input"
-                placeholder="Escribí una nueva tarea"
-              />
-              <button onclick="addTask()">Agregar tarea</button>
-            </div>
+          <div class="dashboard-side">
+            <section id="tareas" class="card card-tasks">
+              <h3>Lista de Tareas</h3>
+              <div class="task-input-row">
+                <input
+                  type="text"
+                  id="task-input"
+                  placeholder="Escribí una nueva tarea"
+                />
+                <button onclick="addTask()">Agregar tarea</button>
+              </div>
 
-            <div class="task-priority-row">
-              <label for="task-priority">Prioridad:</label>
-              <select id="task-priority">
-                <option value="baja">Baja</option>
-                <option value="media" selected>Media</option>
-                <option value="alta">Alta</option>
-              </select>
-            </div>
-            <button class="btn-clear" onclick="clearCompleted()">
-              Borrar finalizadas
-            </button>
-            <p id="counter"></p>
-            <div id="task-list"></div>
-          </section>
+              <div class="task-priority-row">
+                <label for="task-priority">Prioridad:</label>
+                <select id="task-priority">
+                  <option value="baja">Baja</option>
+                  <option value="media" selected>Media</option>
+                  <option value="alta">Alta</option>
+                </select>
+              </div>
+              <button class="btn-clear" onclick="clearCompleted()">
+                Borrar finalizadas
+              </button>
+              <p id="counter"></p>
+              <div id="task-list"></div>
+            </section>
 
-          <section id="progreso" class="card card-progress">
-            <h3>Progreso</h3>
-            <div class="progress-item">
-              <span>Tiempo acumulado</span>
-              <strong id="cronometro">00:00</strong>
-            </div>
-            <div class="progress-item">
-              <span>Objetivo de estudio</span>
-              <strong>
-                <span id="minutosActuales">0</span>/<span id="objetivoMinutos"
-                  >60</span
-                >
-                min
-              </strong>
-            </div>
-            <progress id="barraProgreso" value="0" max="100"></progress>
-            <p id="porcentaje">0%</p>
-            <div class="progress-item">
-              <span>Tareas finalizadas</span>
-              <strong id="contadorTareas">0</strong>
-            </div>
-            <h4>Progreso por materia</h4>
-            <div id="progresoMaterias" class="materia-progress-list"></div>
-          </section>
+            <section id="progreso" class="card card-progress">
+              <h3>Progreso</h3>
+              <div class="progress-item">
+                <span>Tiempo acumulado</span>
+                <strong id="cronometro">00:00</strong>
+              </div>
+              <div class="progress-item">
+                <span>Objetivo de estudio</span>
+                <strong>
+                  <span id="minutosActuales">0</span>/<span id="objetivoMinutos"
+                    >25</span
+                  >
+                  min
+                </strong>
+              </div>
+              <progress id="barraProgreso" value="0" max="100"></progress>
+              <p id="porcentaje">0%</p>
+              <div class="progress-item">
+                <span>Tareas finalizadas</span>
+                <strong id="contadorTareas">0</strong>
+              </div>
+              <h4>Progreso por materia</h4>
+              <div id="progresoMaterias" class="materia-progress-list"></div>
+            </section>
+          </div>
         </div>
       </main>
     </div>
