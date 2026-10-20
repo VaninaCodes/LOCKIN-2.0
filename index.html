@@ -122,16 +122,24 @@
       </aside>
 
       <main class="content">
-        <header>
-          <h2 id="saludo">Buen día</h2>
-          <p id="fecha-actual"></p>
+        <header class="dashboard-header">
+          <div class="dashboard-greeting">
+            <h2 id="saludo">Buen día</h2>
+            <p id="fecha-actual"></p>
+          </div>
+          <img id="fotoSaludo" class="greeting-avatar" alt="Foto de perfil" hidden />
         </header>
 
         <div class="cards-grid">
           <section id="pomodoro" class="card card-time">
             <h2 id="tiempo">00:25:00</h2>
+            <label for="materiaEstudio">Materia de estudio:</label>
+            <select id="materiaEstudio" required>
+              <option value="">Seleccioná una materia</option>
+            </select>
+            <p id="avisoMaterias" class="materia-hint"></p>
             <div class="btn-group-pomodoro">
-              <button id="iniciar">Iniciar</button>
+              <button id="iniciar" disabled>Iniciar</button>
               <button id="pausar" style="display: none">Pausar</button>
               <button id="reiniciar" style="display: none">Reiniciar</button>
             </div>
@@ -201,6 +209,8 @@
               <span>Tareas finalizadas</span>
               <strong id="contadorTareas">0</strong>
             </div>
+            <h4>Progreso por materia</h4>
+            <div id="progresoMaterias" class="materia-progress-list"></div>
           </section>
         </div>
       </main>
@@ -312,6 +322,7 @@
     ></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="assets/js/personalizacion.js"></script>
+    <script src="assets/js/study-data.js"></script>
     <script src="assets/js/script.js"></script>
   </body>
 </html>

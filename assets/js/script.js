@@ -269,6 +269,15 @@ const tipoPomodoroSelect =
 const cantidadSetsSelect =
     document.getElementById("cantidadSets");
 
+const materiaEstudioSelect =
+    document.getElementById("materiaEstudio");
+
+const avisoMaterias =
+    document.getElementById("avisoMaterias");
+
+const progresoMaterias =
+    document.getElementById("progresoMaterias");
+
 const iniciarBtn =
     document.getElementById("iniciar");
 
@@ -277,6 +286,99 @@ const pausarBtn =
 
 const reiniciarBtn =
     document.getElementById("reiniciar");
+
+let materiasEstudio = window.LockInStudyData.readSubjects();
+let materiaSesionId = null;
+
+function actualizarSelectorMaterias() {
+    const materiaGuardada = sessionStorage.getItem("lockin_materia_seleccionada");
+    materiaEstudioSelect.replaceChildren();
+
+    const opcionInicial = document.createElement("option");
+    opcionInicial.value = "";
+    opcionInicial.textContent = "Seleccioná una materia";
+    materiaEstudioSelect.appendChild(opcionInicial);
+
+    materiasEstudio.forEach((materia) => {
+        const opcion = document.createElement("option");
+        opcion.value = materia.id;
+        opcion.textContent = materia.name;
+        materiaEstudioSelect.appendChild(opcion);
+    });
+
+    const seleccionValida = materiasEstudio.some(
+        (materia) => materia.id === materiaGuardada,
+    );
+    materiaEstudioSelect.value = seleccionValida ? materiaGuardada : "";
+    iniciarBtn.disabled = materiasEstudio.length === 0;
+    avisoMaterias.textContent =
+        materiasEstudio.length === 0
+            ? "Primero agregá una materia desde tu perfil."
+            : "";
+}
+
+function formatearTiempoMateria(segundos) {
+    const horas = Math.floor(segundos / 3600);
+    const minutos = Math.floor((segundos % 3600) / 60);
+    return horas > 0 ? `${horas} h ${minutos} min` : `${minutos} min`;
+}
+
+function actualizarProgresoMaterias() {
+    const progreso = window.LockInStudyData.readProgress();
+    const totalSegundos = materiasEstudio.reduce(
+        (total, materia) => total + (Number(progreso[materia.id]?.seconds) || 0),
+        0,
+    );
+    progresoMaterias.replaceChildren();
+
+    if (materiasEstudio.length === 0) {
+        const mensaje = document.createElement("p");
+        mensaje.textContent = "Agregá materias en tu perfil para ver el progreso.";
+        progresoMaterias.appendChild(mensaje);
+        return;
+    }
+
+    materiasEstudio.forEach((materia) => {
+        const segundos = Number(progreso[materia.id]?.seconds) || 0;
+        const porcentajeMateria =
+            totalSegundos > 0 ? (segundos / totalSegundos) * 100 : 0;
+        const fila = document.createElement("div");
+        fila.className = "materia-progress-item";
+
+        const encabezado = document.createElement("div");
+        encabezado.className = "progress-item";
+
+        const nombre = document.createElement("span");
+        nombre.textContent = materia.name;
+
+        const tiempoMateria = document.createElement("strong");
+        tiempoMateria.textContent =
+            `${formatearTiempoMateria(segundos)} (${Math.floor(porcentajeMateria)}% del total)`;
+        encabezado.append(nombre, tiempoMateria);
+
+        const barra = document.createElement("progress");
+        barra.max = totalSegundos || 1;
+        barra.value = segundos;
+        barra.setAttribute(
+            "aria-label",
+            `${materia.name}: ${Math.floor(porcentajeMateria)}% del tiempo total`,
+        );
+
+        fila.append(encabezado, barra);
+        progresoMaterias.appendChild(fila);
+    });
+}
+
+materiaEstudioSelect.addEventListener("change", () => {
+    if (iniciado) return;
+    sessionStorage.setItem(
+        "lockin_materia_seleccionada",
+        materiaEstudioSelect.value,
+    );
+});
+
+actualizarSelectorMaterias();
+actualizarProgresoMaterias();
 
 function pintarTiempo() {
 
@@ -329,120 +431,108 @@ function detenerIntervalo() {
     intervaloPomodoro = null;
 }
 
-function actualizarPomodoro() {
+function aplicarEstadoPomodoro(estado) {
+    if (!estado) return;
 
-    segundosRestantes--;
+    segundosRestantes = estado.secondsRemaining;
+    minutosEstudio = estado.studyMinutes;
+    minutosDescanso = estado.breakMinutes;
+    totalSets = estado.totalSets;
+    setActual = estado.currentSet;
+    esDescanso = estado.isBreak;
+    segundosAcumulados = estado.elapsedStudySeconds;
+    materiaSesionId = estado.subjectId;
+    iniciado = !estado.completed;
 
-    // El tiempo acumulado / progreso solo cuenta minutos de estudio,
-    // no de descanso.
-    if (!esDescanso) {
-
-        segundosAcumulados++;
-
-        const minutosAcumulados =
-            Math.floor(segundosAcumulados / 60);
-
-        const segundosMostrar =
-            segundosAcumulados % 60;
-
-        cronometro.textContent =
-            String(minutosAcumulados).padStart(2, "0")
-            + ":"
-            + String(segundosMostrar).padStart(2, "0");
-
-        minutosActuales.textContent =
-            minutosAcumulados;
-
-        actualizarProgreso();
+    tipoPomodoroSelect.value = `${minutosEstudio}-${minutosDescanso}`;
+    cantidadSetsSelect.value = String(totalSets);
+    if (materiasEstudio.some((materia) => materia.id === materiaSesionId)) {
+        materiaEstudioSelect.value = materiaSesionId;
     }
 
-    if (segundosRestantes <= 0) {
-
-        if (!esDescanso) {
-
-            esDescanso = true;
-
-            document.getElementById(
-                "estadoPomodoro"
-            ).textContent =
-                "Descanso";
-
-            segundosRestantes =
-                minutosDescanso * 60;
-
-        } else {
-
-            setActual++;
-
-            if (setActual > totalSets) {
-
-                detenerIntervalo();
-
-                segundosRestantes = 0;
-                pintarTiempo();
-
-                alert(
-                    "Terminaste todas las sesiones de estudio."
-                );
-
-                return;
-            }
-
-            esDescanso = false;
-
-            document.getElementById(
-                "estadoPomodoro"
-            ).textContent =
-                "Estudio";
-
-            segundosRestantes =
-                minutosEstudio * 60;
-        }
-    }
-
+    materiaEstudioSelect.disabled = iniciado;
+    tipoPomodoroSelect.disabled = iniciado;
+    cantidadSetsSelect.disabled = iniciado;
+    document.getElementById("estadoPomodoro").textContent =
+        estado.completed ? "Sesión terminada" : esDescanso ? "Descanso" : "Estudio";
+    document.getElementById("objetivoMinutos").textContent =
+        minutosEstudio * totalSets;
+    cronometro.textContent =
+        `${String(Math.floor(segundosAcumulados / 60)).padStart(2, "0")}:` +
+        `${String(segundosAcumulados % 60).padStart(2, "0")}`;
+    minutosActuales.textContent = Math.floor(segundosAcumulados / 60);
     pintarTiempo();
+
+    if (estado.running) {
+        mostrarBotonesEnEjecucion();
+        pausarBtn.textContent = "Pausar";
+    } else if (iniciado) {
+        mostrarBotonesEnEjecucion();
+        pausarBtn.textContent = "Reanudar";
+    } else {
+        mostrarBotonInicial();
+    }
+}
+
+function actualizarPomodoro() {
+    const estadoAnterior = window.LockInStudyData.getPomodoroState();
+    const estado = window.LockInStudyData.advancePomodoro();
+    if (!estado) return;
+
+    aplicarEstadoPomodoro(estado);
+    actualizarProgresoMaterias();
+
+    if (estadoAnterior?.running && estado.completed) {
+        detenerIntervalo();
+        alert("Terminaste todas las sesiones de estudio.");
+    } else if (!estado.running) {
+        detenerIntervalo();
+    }
 }
 
 iniciarBtn.addEventListener("click", () => {
 
     if (intervaloPomodoro !== null) return;
 
+    if (!materiaEstudioSelect.value) {
+        materiaEstudioSelect.setCustomValidity(
+            "Seleccioná una materia antes de comenzar.",
+        );
+        materiaEstudioSelect.reportValidity();
+        materiaEstudioSelect.setCustomValidity("");
+        return;
+    }
+
     leerSeleccionModo();
 
     totalSets =
         parseInt(cantidadSetsSelect.value);
 
-    if (!iniciado) {
-
-        // Primer inicio (o luego de un Reiniciar): arrancamos
-        // una sesión nueva desde cero.
+    const estadoActual = window.LockInStudyData.getPomodoroState();
+    if (!estadoActual || estadoActual.completed) {
         esDescanso = false;
         setActual = 1;
         segundosAcumulados = 0;
         segundosRestantes = minutosEstudio * 60;
-
-        document.getElementById(
-            "estadoPomodoro"
-        ).textContent =
-            "Estudio";
-
-        cronometro.textContent = "00:00";
-        minutosActuales.textContent = "0";
-
-        pintarTiempo();
+        materiaSesionId = materiaEstudioSelect.value;
+        iniciado = true;
+        window.LockInStudyData.savePomodoroState({
+            subjectId: materiaSesionId,
+            studyMinutes: minutosEstudio,
+            breakMinutes: minutosDescanso,
+            totalSets,
+            currentSet: 1,
+            isBreak: false,
+            secondsRemaining: segundosRestantes,
+            elapsedStudySeconds: 0,
+            running: false,
+            completed: false,
+            lastUpdatedAt: Date.now(),
+        });
     }
 
-    objetivo =
-        minutosEstudio * totalSets;
-
-    document.getElementById(
-        "objetivoMinutos"
-    ).textContent = objetivo;
-
-    iniciado = true;
-
-    tipoPomodoroSelect.disabled = true;
-    cantidadSetsSelect.disabled = true;
+    const estado = window.LockInStudyData.resumePomodoro();
+    aplicarEstadoPomodoro(estado);
 
     mostrarBotonesEnEjecucion();
 
@@ -458,12 +548,14 @@ iniciarBtn.addEventListener("click", () => {
 pausarBtn.addEventListener("click", () => {
 
     if (intervaloPomodoro !== null) {
-
+        const estado = window.LockInStudyData.pausePomodoro();
         detenerIntervalo();
+        aplicarEstadoPomodoro(estado);
         pausarBtn.textContent = "Reanudar";
 
     } else {
-
+        const estado = window.LockInStudyData.resumePomodoro();
+        aplicarEstadoPomodoro(estado);
         intervaloPomodoro =
             setInterval(
                 actualizarPomodoro,
@@ -477,11 +569,13 @@ pausarBtn.addEventListener("click", () => {
 reiniciarBtn.addEventListener("click", () => {
 
     detenerIntervalo();
+    window.LockInStudyData.clearPomodoroState();
 
     esDescanso = false;
     setActual = 1;
     segundosAcumulados = 0;
     iniciado = false;
+    materiaSesionId = null;
 
     document.getElementById(
         "estadoPomodoro"
@@ -498,6 +592,7 @@ reiniciarBtn.addEventListener("click", () => {
     cronometro.textContent = "00:00";
     minutosActuales.textContent = "0";
 
+    materiaEstudioSelect.disabled = false;
     tipoPomodoroSelect.disabled = false;
     cantidadSetsSelect.disabled = false;
 
@@ -540,12 +635,19 @@ cantidadSetsSelect.addEventListener("change", () => {
     }
 });
 
-// Estado visual inicial del cronómetro, acorde a la opción
-// seleccionada por defecto en el <select>.
+// Recupera el temporizador si se navegó a otra página de la aplicación.
 leerSeleccionModo();
 segundosRestantes = minutosEstudio * 60;
-pintarTiempo();
-mostrarBotonInicial();
+const estadoGuardado = window.LockInStudyData.getPomodoroState();
+if (estadoGuardado) {
+    aplicarEstadoPomodoro(window.LockInStudyData.advancePomodoro());
+    if (window.LockInStudyData.getPomodoroState()?.running) {
+        intervaloPomodoro = setInterval(actualizarPomodoro, 1000);
+    }
+} else {
+    pintarTiempo();
+    mostrarBotonInicial();
+}
 
 // ========================================
 // PROGRESO
@@ -566,6 +668,8 @@ const porcentaje =
     document.getElementById(
         "porcentaje"
     );
+
+let felicitacionMostrada = false;
 
 function actualizarProgreso() {
 
@@ -599,14 +703,11 @@ function actualizarProgreso() {
         Math.floor(progresoTotal)
         + "%";
 
-    if (progresoTotal >= 100 && tasks.length > 0) {
-
-        clearInterval(intervaloPomodoro);
-
-        intervaloPomodoro = null;
-
+    if (progresoTotal >= 100 && tasks.length > 0 && !felicitacionMostrada) {
+        felicitacionMostrada = true;
         mostrarFelicitacion();
-        
+    } else if (progresoTotal < 100) {
+        felicitacionMostrada = false;
     }
 }
 
@@ -639,6 +740,7 @@ if (sidebarToggle) {
 
 render();
 actualizarProgreso();
+actualizarProgresoMaterias();
 function mostrarFelicitacion(){
     document.getElementById("mensajeFinal").classList.add("mostrar");
     confetti({
@@ -653,19 +755,40 @@ function mostrarFelicitacion(){
 // SALUDO Y FECHA
 // ========================================
 
-function actualizarSaludo() {
+async function actualizarSaludo() {
     const hora = new Date().getHours();
     const saludoEl = document.getElementById("saludo");
+    const usuario = window.LockInStudyData.readUser();
+    let perfil = {};
+    let fotoGuardada = null;
 
-    let mensaje = "Buenas noches ";
-    if (hora >= 6 && hora < 12) mensaje = "Buen día ";
-    else if (hora >= 12 && hora < 19) mensaje = "Buenas tardes ";
+    try {
+        perfil = await window.LockInStudyData.readProfile();
+        fotoGuardada = await window.LockInStudyData.readProfilePhoto();
+    } catch (error) {
+        console.error("No se pudo cargar la información del perfil para el saludo.", error);
+    }
 
-    saludoEl.textContent = mensaje;
+    const nombreUsuario = usuario.name || perfil.usuario || "usuario";
+
+    let mensaje = "Buenas noches";
+    if (hora >= 6 && hora < 12) mensaje = "Buen día";
+    else if (hora >= 12 && hora < 19) mensaje = "Buenas tardes";
+
+    saludoEl.textContent = `${mensaje}, ${nombreUsuario}`;
 
     const fechaEl = document.getElementById("fecha-actual");
     const opciones = { weekday: "long", day: "numeric", month: "long" };
     fechaEl.textContent = new Date().toLocaleDateString("es-AR", opciones);
+
+    const fotoSaludo = document.getElementById("fotoSaludo");
+    if (fotoGuardada) {
+        fotoSaludo.src = fotoGuardada;
+        fotoSaludo.hidden = false;
+    } else {
+        fotoSaludo.removeAttribute("src");
+        fotoSaludo.hidden = true;
+    }
 }
 actualizarSaludo();
 
@@ -696,14 +819,51 @@ document
 const CLAVE_RETO_PENDIENTE = "lockin_reto_pendiente";
 let seDistrajoEnEstudio =
     sessionStorage.getItem(CLAVE_RETO_PENDIENTE) === "true";
+let navegacionInternaPendiente = false;
+
+document.addEventListener(
+    "click",
+    (event) => {
+        const objetivo = event.target instanceof Element
+            ? event.target
+            : event.target.parentElement;
+        const link = objetivo?.closest("a[href]");
+        if (!link || event.button !== 0 || event.metaKey || event.ctrlKey ||
+            event.shiftKey || event.altKey || (link.target && link.target !== "_self")) {
+            return;
+        }
+
+        const destino = new URL(link.href, window.location.href);
+        if (
+            destino.origin === window.location.origin &&
+            /\/(?:index|perfil)\.html$/i.test(destino.pathname)
+        ) {
+            navegacionInternaPendiente = true;
+        }
+    },
+    true,
+);
+
+window.addEventListener("pageshow", () => {
+    navegacionInternaPendiente = false;
+});
 
 document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
         document.title = "¿Te fuiste? 👀";
 
+        if (navegacionInternaPendiente) {
+            navegacionInternaPendiente = false;
+            return;
+        }
+
         if (intervaloPomodoro !== null && !esDescanso) {
             seDistrajoEnEstudio = true;
             sessionStorage.setItem(CLAVE_RETO_PENDIENTE, "true");
+        }
+        if (intervaloPomodoro !== null) {
+            detenerIntervalo();
+            aplicarEstadoPomodoro(window.LockInStudyData.getPomodoroState());
         }
 
     } else {

@@ -35,49 +35,44 @@
   display: block !important;
 }
 
-/* Icono circular de lápiz sobre la foto */
+#foto img[hidden] {
+  display: none !important;
+}
+
+#sinFotoPerfil {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--pale-slate);
+  border-radius: 50%;
+  background: rgba(var(--card-bg-rgb), var(--panel-opacity));
+  color: var(--cool-steel);
+}
+
+#sinFotoPerfil[hidden] {
+  display: none;
+}
+
+/* La foto principal también permite abrir el selector de imágenes. */
 #botonCambiarFoto {
   position: absolute !important;
-  bottom: 6px !important;
-  right: 6px !important;
-  width: 36px !important;
-  height: 36px !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
   border-radius: 50% !important;
-  background-color: var(--accent-color) !important;
-  color: white !important;
+  background: transparent !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 0.9rem !important;
   cursor: pointer !important;
-  border: 2px solid white !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
   margin: 0 !important;
 }
 
-#botonCambiarFoto:hover {
-  filter: brightness(1.1) !important;
-}
-
-.tooltip-foto {
-  position: absolute !important;
-  bottom: -30px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  background-color: var(--taupe-grey) !important;
-  color: white !important;
-  font-size: 0.75rem !important;
-  font-weight: normal !important;
-  padding: 4px 10px !important;
-  border-radius: 6px !important;
-  white-space: nowrap !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transition: opacity 0.15s ease !important;
-}
-
-#botonCambiarFoto:hover .tooltip-foto {
-  opacity: 1 !important;
+#botonCambiarFoto:hover #fotoPerfil,
+#botonCambiarFoto:hover #sinFotoPerfil {
+  filter: brightness(0.92);
 }
 
 .desc {
@@ -159,6 +154,78 @@
 
 #botonCancelar {
   background-color: var(--cool-steel) !important;
+}
+
+.materias-card {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: none;
+  text-align: left;
+}
+
+.materia-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.materia-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.materia-input-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.materias-list {
+  margin-top: 16px;
+}
+
+.materia-item {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(140px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--pale-slate);
+}
+
+.materia-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.materia-error {
+  min-height: 1.2em;
+  margin: 0;
+  color: #a83232;
+}
+
+.materia-hint {
+  color: var(--cool-steel);
+  margin: 8px 0;
+}
+
+.materia-progress-item {
+  margin: 12px 0;
+}
+
+.materia-progress-item .progress-item {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 600px) {
+  .materia-input-row {
+    flex-direction: column;
+  }
+
+  .materia-item {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
 }
 
 /* Adaptación Mobile */
