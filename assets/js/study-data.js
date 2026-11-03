@@ -4,6 +4,8 @@
   const prefix = `lockin:${encodeURIComponent(String(identity).toLowerCase())}`;
   const SUBJECTS_KEY = `${prefix}:subjects`;
   const PROGRESS_KEY = `${prefix}:subject-progress`;
+  const STUDY_HISTORY_KEY = `${prefix}:study-history`;
+  const TASKS_KEY = `${prefix}:tasks`;
   const PROFILE_KEY = `${prefix}:profile`;
   const POMODORO_KEY = `${prefix}:pomodoro`;
   const PHOTO_DATABASE = "lockin-profile-assets";
@@ -79,6 +81,42 @@
     localStorage.setItem(SUBJECTS_KEY, JSON.stringify(subjects));
   }
 
+  function readTasks() {
+    const savedTasks = localStorage.getItem(TASKS_KEY);
+    if (savedTasks !== null) {
+      try {
+        const tasks = JSON.parse(savedTasks);
+        if (Array.isArray(tasks)) return tasks;
+        console.error("Las tareas guardadas no tienen el formato esperado.");
+        return [];
+      } catch (error) {
+        console.error("No se pudieron leer las tareas guardadas.", error);
+        return [];
+      }
+    }
+
+    const legacyTasks = localStorage.getItem("tareas");
+    if (legacyTasks === null) return [];
+
+    try {
+      const tasks = JSON.parse(legacyTasks);
+      if (!Array.isArray(tasks)) {
+        console.error("Las tareas anteriores no tienen el formato esperado.");
+        return [];
+      }
+      saveTasks(tasks);
+      localStorage.removeItem("tareas");
+      return tasks;
+    } catch (error) {
+      console.error("No se pudieron migrar las tareas guardadas.", error);
+      return [];
+    }
+  }
+
+  function saveTasks(tasks) {
+    localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+  }
+
   function readProgress() {
     const value = read(PROGRESS_KEY);
     return value && typeof value === "object" && !Array.isArray(value)
@@ -86,14 +124,50 @@
       : {};
   }
 
+  function readStudyHistory() {
+    const value = read(STUDY_HISTORY_KEY);
+    return value && typeof value === "object" && !Array.isArray(value)
+      ? value
+      : {};
+  }
+
+  function saveStudyHistory(history) {
+    localStorage.setItem(STUDY_HISTORY_KEY, JSON.stringify(history));
+  }
+
   function addStudySeconds(subjectId, seconds) {
-    if (!subjectId || seconds <= 0) return;
+    if (!subjectId || !Number.isFinite(seconds) || seconds <= 0) return;
 
     const progress = readProgress();
     const subjectProgress = progress[subjectId] || { seconds: 0 };
     subjectProgress.seconds = (Number(subjectProgress.seconds) || 0) + seconds;
     progress[subjectId] = subjectProgress;
     saveProgress(progress);
+
+    const now = new Date();
+    const dateKey = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, "0"),
+      String(now.getDate()).padStart(2, "0"),
+    ].join("-");
+    const history = readStudyHistory();
+    const storedDay = history[dateKey];
+    const day =
+      storedDay && typeof storedDay === "object" && !Array.isArray(storedDay)
+        ? storedDay
+        : { seconds: 0, subjects: {} };
+    day.seconds = (Number(day.seconds) || 0) + seconds;
+    if (
+      !day.subjects ||
+      typeof day.subjects !== "object" ||
+      Array.isArray(day.subjects)
+    ) {
+      day.subjects = {};
+    }
+    day.subjects[subjectId] =
+      (Number(day.subjects[subjectId]) || 0) + seconds;
+    history[dateKey] = day;
+    saveStudyHistory(history);
   }
 
   function saveProgress(progress) {
@@ -238,13 +312,39 @@
     const progress = readProgress();
     delete progress[subjectId];
     saveProgress(progress);
+
+    const history = readStudyHistory();
+    Object.entries(history).forEach(([dateKey, day]) => {
+      if (
+        !day ||
+        typeof day !== "object" ||
+        !day.subjects ||
+        typeof day.subjects !== "object" ||
+        Array.isArray(day.subjects) ||
+        !(subjectId in day.subjects)
+      ) {
+        return;
+      }
+      delete day.subjects[subjectId];
+      day.seconds = Object.values(day.subjects).reduce(
+        (total, seconds) => total + (Number(seconds) || 0),
+        0,
+      );
+      if (day.seconds === 0) {
+        delete history[dateKey];
+      }
+    });
+    saveStudyHistory(history);
   }
 
   window.LockInStudyData = {
     readSubjects,
     saveSubjects,
+    readTasks,
+    saveTasks,
     readProgress,
     saveProgress,
+    readStudyHistory,
     addStudySeconds,
     readProfile,
     saveProfile,
@@ -285,7 +385,7 @@
       const destination = new URL(link.href, window.location.href);
       if (
         destination.origin === window.location.origin &&
-        /\/(?:index|perfil)\.html$/i.test(destination.pathname)
+        /\/(?:index|perfil|progreso)\.html$/i.test(destination.pathname)
       ) {
         internalNavigationPending = true;
       }

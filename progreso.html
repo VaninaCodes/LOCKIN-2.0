@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Progreso - LOCK IN</title>
+    <script src="assets/js/theme.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Righteous&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/progreso.css" />
+    <link rel="icon" type="image/x-icon" href="assets/img/logo.ico" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <button
+        class="sidebar-toggle"
+        id="sidebarToggle"
+        aria-label="Abrir menú"
+        aria-expanded="false"
+      >
+        <i class="bi bi-list"></i>
+      </button>
+      <aside class="sidebar" id="sidebar">
+        <button
+          type="button"
+          class="sidebar-close"
+          id="sidebarClose"
+          aria-label="Cerrar menú"
+        >
+          <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="sidebar-logo"><h1>LOCK IN</h1></div>
+        <nav class="sidebar-nav">
+          <a href="perfil.html" class="nav-item">
+            <i class="bi bi-person-circle" aria-hidden="true"></i>
+            <span>Perfil</span>
+          </a>
+          <a href="index.html" class="nav-item">
+            <i class="bi bi-journal-bookmark-fill" aria-hidden="true"></i>
+            <span>Estudio</span>
+          </a>
+          <a href="progreso.html" class="nav-item active" aria-current="page">
+            <i class="bi bi-graph-up" aria-hidden="true"></i>
+            <span>Progreso</span>
+          </a>
+          <button
+            type="button"
+            class="nav-personalizar"
+            id="abrirPersonalizacion"
+          >
+            <i class="bi bi-palette"></i> Personalizar
+          </button>
+          <a href="login.html" class="nav-item nav-item-exit">
+            <i class="bi bi-box-arrow-left" aria-hidden="true"></i>
+            <span>Salir</span>
+          </a>
+        </nav>
+      </aside>
+
+      <main class="content progress-page">
+        <header class="dashboard-header">
+          <div class="dashboard-greeting">
+            <h2 id="saludo">Tu progreso</h2>
+            <p id="fecha-actual"></p>
+          </div>
+        </header>
+        <div class="cards-grid">
+          <section class="card progress-period-card" aria-labelledby="weekTitle">
+            <h3 id="weekTitle">Esta semana</h3>
+            <p id="weekRange" class="progress-period-range"></p>
+            <div class="progress-summary">
+              <div>
+                <span>Tiempo estudiado</span>
+                <strong id="weekTotal">0 min</strong>
+              </div>
+              <div>
+                <span>Días de estudio</span>
+                <strong id="weekDays">0 de 7</strong>
+              </div>
+            </div>
+            <h4>Actividad diaria</h4>
+            <div
+              id="weekChart"
+              class="study-chart study-chart-week"
+              role="group"
+              aria-label="Tiempo estudiado cada día de esta semana"
+            ></div>
+            <h4>Por materia</h4>
+            <div id="weekSubjects" class="progress-subject-list"></div>
+          </section>
+
+          <section class="card progress-period-card" aria-labelledby="monthTitle">
+            <h3 id="monthTitle">Este mes</h3>
+            <p id="monthRange" class="progress-period-range"></p>
+            <div class="progress-summary">
+              <div>
+                <span>Tiempo estudiado</span>
+                <strong id="monthTotal">0 min</strong>
+              </div>
+              <div>
+                <span>Días de estudio</span>
+                <strong id="monthDays">0 días</strong>
+              </div>
+            </div>
+            <h4>Actividad diaria</h4>
+            <div class="study-chart-scroll">
+              <div
+                id="monthChart"
+                class="study-chart study-chart-month"
+                role="group"
+                aria-label="Tiempo estudiado cada día de este mes"
+              ></div>
+            </div>
+            <h4>Por materia</h4>
+            <div id="monthSubjects" class="progress-subject-list"></div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <div id="personalizacionOverlay" class="personalizacion-overlay">
+      <div class="personalizacion-modal">
+        <button
+          type="button"
+          id="cerrarPersonalizacion"
+          class="cerrar-modal"
+          aria-label="Cerrar"
+        >
+          <i class="bi bi-x-lg"></i>
+        </button>
+        <h3>Personalizar apariencia</h3>
+        <div class="personalizacion-bloque">
+          <label>Modo</label>
+          <div class="modo-toggle" id="modoToggle"></div>
+        </div>
+        <div class="personalizacion-bloque">
+          <label>Color de tema</label>
+          <div class="paletas-grid" id="paletasGrid"></div>
+        </div>
+        <div class="personalizacion-bloque">
+          <label>Fondo</label>
+          <div class="personalizacion-fondo-row">
+            <div id="fondoPreview" class="fondo-preview"></div>
+            <input type="color" id="inputColorFondo" title="Color de fondo" />
+            <input type="file" id="inputFondo" accept="image/*" />
+          </div>
+          <button
+            type="button"
+            id="quitarFondo"
+            class="btn-clear"
+            style="margin-top: 8px"
+          >
+            Quitar imagen/color
+          </button>
+        </div>
+        <div class="personalizacion-bloque">
+          <span>
+            Transparencia de los paneles:
+            <span id="opacidadValor">100%</span>
+          </span>
+          <input
+            type="range"
+            id="opacidadSlider"
+            min="0.3"
+            max="1"
+            step="0.05"
+            value="1"
+          />
+        </div>
+        <div class="personalizacion-bloque">
+          <span>
+            Desenfoque de la imagen de fondo:
+            <span id="desenfoqueValor">0px</span>
+          </span>
+          <input
+            type="range"
+            id="desenfoqueSlider"
+            min="0"
+            max="20"
+            step="1"
+            value="0"
+          />
+        </div>
+        <div class="personalizacion-botones">
+          <button
+            type="button"
+            id="restablecerPersonalizacion"
+            class="btn-restablecer"
+          >
+            Restablecer
+          </button>
+          <button type="button" id="cancelarPersonalizacion" class="btn-clear">
+            Cancelar
+          </button>
+          <button type="button" id="guardarPersonalizacion">
+            Guardar cambios
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/js/personalizacion.js"></script>
+    <script src="assets/js/study-data.js"></script>
+    <script src="assets/js/progreso.js"></script>
+  </body>
+</html>

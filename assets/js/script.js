@@ -2,18 +2,13 @@
 // LISTA DE TAREAS
 // ========================================
 
-let tasks = JSON.parse(
-    localStorage.getItem("tareas") || "[]"
-);
+let tasks = window.LockInStudyData.readTasks();
 
 let ultimoId = null;
 
 function save() {
 
-    localStorage.setItem(
-        "tareas",
-        JSON.stringify(tasks)
-    );
+    window.LockInStudyData.saveTasks(tasks);
 
     render();
     actualizarProgreso();
@@ -901,7 +896,7 @@ document.addEventListener(
         const destino = new URL(link.href, window.location.href);
         if (
             destino.origin === window.location.origin &&
-            /\/(?:index|perfil)\.html$/i.test(destino.pathname)
+            /\/(?:index|perfil|progreso)\.html$/i.test(destino.pathname)
         ) {
             navegacionInternaPendiente = true;
         }
